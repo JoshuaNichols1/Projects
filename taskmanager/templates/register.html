@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+
+{% block header %}
+<title>{{title}}</title>
+<h1>{{title}}</h1>
+{% endblock %}
+
+{% block content %}
+<script>
+    function myOnSubmit(form) {
+        function myOnSubmit(aForm) {
+            //Getting the two input objects
+            var inputPassword = aForm['password'];
+
+            //Hashing the values before submitting
+            inputPassword.value = sha256_hash(inputPassword.value);
+
+            //Submitting
+            return true;
+        }
+    }
+</script>
+<form onsubmit="return myOnSubmit(this);" action="/register" method="post">
+    <label for="email">Email</label>
+    <input name="email" id="email" required>
+    <label for="username">Username</label>
+    <input name="username" id="username" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <input type="submit" value="Register">
+</form>
+{% endblock %}
