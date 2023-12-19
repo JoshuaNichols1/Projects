@@ -1,3 +1,7 @@
+import requests
+import geocoder
+import torch as pt
+
 weather_key = "11f6f2a5f0a745b4bc323611231912"
 
 
@@ -10,6 +14,8 @@ def get_weather(location=None):
     weather_condition = weather_data["condition"]["text"]
     temp = weather_data["temp_c"]
 
+
+chatbot_name = "NotBot"
 
 training_data = [
     [
@@ -50,7 +56,8 @@ training_data = [
         "I can try to answer any question you can throw at me, go head and try one out!",
     ],
     ["What are you made of?", "I'm made of code and lots of data!"],
-    ["What's the weather like?", "Let me check..."],
+    ["What's the weather like?", f"The weather is currently {get_weather()}"],
+    ["What's the weather like in london?", f"""The weather is currently {get_weather("London")}"""],
     ["What's the news today?", "Here are some headlines..."],
     [
         "Tell me a joke",
