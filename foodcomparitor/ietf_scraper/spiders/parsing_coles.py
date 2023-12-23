@@ -4,19 +4,23 @@ import sqlite3
 con = sqlite3.connect("foodcompare.db")
 cur = con.cursor()
 
+link_file = open("links.txt", "r")
+global temp_urls
+temp_urls = [str(link) for link in link_file]
+
 
 class IetfSpider(scrapy.Spider):
     name = "parsing_coles"
-    link_file = open("links.txt", "r")
-    temp_urls = [str(link) for link in link_file]
-    start_urls = temp_urls[0:20]
+    start_urls = temp_urls[200:220]
 
     def __init__(self):
         self.result_dict = []
+        self.count = 0
+        self.max = len(temp_urls[200:220]) - 1
 
     def parse(self, response):
-        product_name = response.xpath("/html/head/title").get()
-        product_name = " ".join(title.split(" ")[1:6])
+        product_name = response.xpath("/html/head/title/text()").get()
+        product_name = product_name[4:-8]
         description = response.xpath(
             "//div[@data-testid='section-header']/div/div/div/text()"
         ).get()
@@ -53,10 +57,10 @@ class IetfSpider(scrapy.Spider):
         ingredients = response.xpath("//div[@id='ingredients-control']/div/div/text()").get()
         if ingredients is not None:
             ingredients = ingredients.capitalize()
-        self.result_dict.append(
+        worked = self.result_dict.append(
             (
                 response.url,
-                title,
+                product_name,
                 description,
                 kj,
                 protein,
@@ -68,22 +72,26 @@ class IetfSpider(scrapy.Spider):
                 ingredients,
             )
         )
-        if temp_urls.index(response.url) == len(temp_urls) - 1:
+        if worked:
+            self.count += 1
+        else:
+            self.max -= 1
+        if self.count == self.max:
             cur.executemany(
-                "INSERT INTO product VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", self.result_dict
+                "INSERT INTO product VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", self.result_dict
             )
             con.commit()
             con.close()
-        yield {
-            "product_url": response.url,
-            "product_name": product_name,
-            "description": description,
-            "kj": kj,
-            "protein": protein,
-            "total_fat": total_fat,
-            "saturated_fat": saturated_fat,
-            "carbohydrates": carbohydrates,
-            "sugars": sugars,
-            "sodium": sodium,
-            "ingredients": ingredients,
-        }
+        # yield {
+        #     "product_url": response.url,
+        #     "product_name": product_name,
+        #     "description": description,
+        #     "kj": kj,
+        #     "protein": protein,
+        #     "total_fat": total_fat,
+        #     "saturated_fat": saturated_fat,
+        #     "carbohydrates": carbohydrates,
+        #     "sugars": sugars,
+        #     "sodium": sodium,
+        #     "ingredients": ingredients,
+        # }
