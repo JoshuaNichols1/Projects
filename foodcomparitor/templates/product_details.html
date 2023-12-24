@@ -1,0 +1,35 @@
+{% extends 'template.html' %}
+{% block header %}
+<h1>{% block title %}Food Details{% endblock %}</h1>
+{% endblock %}
+{% block content %}
+<h2>Food Details</h2>
+<h3><b>Product Name:</b></h3>
+<p>{{ product_name }}</p>
+<h3><b>Description:</b></h3>
+<p>{{ product_description }}</p>
+<h3><b>Energy:</b></h3>
+<p>{{ product_energy }}</p>
+<h3><b>Protein:</b></h3>
+<p>{{ product_protein }}</p>
+<h3><b>Total Fat:</b></h3>
+<p>{{ product_total_fat }}</p>
+<ul>
+    <li>
+        <h3><b>Saturated Fat:</b></h3>
+        <p>{{ product_saturated_fat }}</p>
+    </li>
+</ul>
+<h3><b>Carbohydrate:</b></h3>
+<p>{{ product_carbohydrate }}</p>
+<ul>
+    <li>
+        <h3><b>Sugar:</b></h3>
+        <p>{{ product_sugar }}</p>
+    </li>
+</ul>
+<h3><b>Sodium:</b></h3>
+<p>{{ product_sodium }}</p>
+<h3><b>Ingredients:</b></h3>
+<p>{{ product_ingredients }}</p>
+{% endblock %}

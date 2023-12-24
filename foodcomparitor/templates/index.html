@@ -1,0 +1,44 @@
+{% extends 'template.html' %}
+{% block header %}
+<h1>{% block title %}Food Search{% endblock %}</h1>
+<style>
+    .message {
+        padding: 10px;
+        margin: 5px;
+        background-color: #f3f3f3
+    }
+
+    .alert {
+        padding: 20px;
+        margin: 5px;
+        color: #970020;
+        background-color: #ffd5de;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h2>Food Search</h2>
+<form action="/productsearch" method="post">
+    <label for="search">Search Bar</label>
+    <br>
+    <input type="text" name="search" placeholder="Search for food" value="{{request.form['search'] }}" required></input>
+    <button type="submit">Submit</button>
+</form>
+{% if get_flashed_messages() %}
+<div class="content">
+    {% for message in get_flashed_messages() %}
+    <div class="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if products %}
+<h2>Results</h2>
+<ul>
+    {% for product in products %}
+    <li>
+        <a href="/product/{{ product[0] }}">{{ product.name }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
