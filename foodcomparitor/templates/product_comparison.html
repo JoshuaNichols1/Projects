@@ -1,0 +1,96 @@
+{% extends 'template.html' %}
+{% block header %}
+<h1>{% block title %}Food Comparison{% endblock %}</h1>
+{% endblock %}
+{% block content %}
+<div style="display: flex;">
+    <div style="flex: 1; padding: 10px;">
+        <h2>Product 1 Details</h2>
+        <h3><b>Product Name:</b></h3>
+        <p>{{ product_name }}</p>
+        <h3><b>Description:</b></h3>
+        <p>{{ product_description }}</p>
+        <h3><b>Nutritional Information:</b></h3>
+        <table>
+            <tr>
+                <th>Nutrient</th>
+                <th>Per serving</th>
+            </tr>
+            <tr>
+                <td>Energy</td>
+                <td>{{ product_energy }}</td>
+            </tr>
+            <tr>
+                <td>Protein</td>
+                <td>{{ product_protein }}</td>
+            </tr>
+            <tr>
+                <td>Total Fat</td>
+                <td>{{ product_total_fat }}</td>
+            </tr>
+            <tr>
+                <td>Saturated Fat</td>
+                <td>{{ product_saturated_fat }}</td>
+            </tr>
+            <tr>
+                <td>Carbohydrates</td>
+                <td>{{ product_carbohydrates }}</td>
+            </tr>
+            <tr>
+                <td>Sugar</td>
+                <td>{{ product_sugar }}</td>
+            </tr>
+            <tr>
+                <td>Sodium</td>
+                <td>{{ product_sodium }}</td>
+            </tr>
+        </table>
+        <h3><b>Ingredients:</b></h3>
+        <p>{{ product_ingredients }}</p>
+    </div>
+    <div style="flex: 1; padding: 10px;">
+        <h2>Product 2 Details</h2>
+        <h3><b>Product Name:</b></h3>
+        <p>{{ product2_name }}</p>
+        <h3><b>Description:</b></h3>
+        <p>{{ product2_description }}</p>
+        <h3><b>Nutritional Information:</b></h3>
+        <table>
+            <tr>
+                <th>Nutrient</th>
+                <th>Per serving</th>
+            </tr>
+            <tr>
+                <td>Energy</td>
+                <td>{{ product2_energy }}</td>
+            </tr>
+            <tr>
+                <td>Protein</td>
+                <td>{{ product2_protein }}</td>
+            </tr>
+            <tr>
+                <td>Total Fat</td>
+                <td>{{ product2_total_fat }}</td>
+            </tr>
+            <tr>
+                <td>Saturated Fat</td>
+                <td>{{ product2_saturated_fat }}</td>
+            </tr>
+            <tr>
+                <td>Carbohydrates</td>
+                <td>{{ product2_carbohydrates }}</td>
+            </tr>
+            <tr>
+                <td>Sugar</td>
+                <td>{{ product2_sugar }}</td>
+            </tr>
+            <tr>
+                <td>Sodium</td>
+                <td>{{ product2_sodium }}</td>
+            </tr>
+        </table>
+        <h3><b>Ingredients:</b></h3>
+        <p>{{ product2_ingredients }}</p>
+    </div>
+</div>
+{% endblock %}

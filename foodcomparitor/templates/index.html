@@ -17,8 +17,9 @@
 </style>
 {% endblock %}
 {% block content %}
+<a href="{{url_for('product_comparison')}}">Compare two products</a>
 <h2>Food Search</h2>
-<form action="/productsearch" method="post">
+<form action="{{url_for('productsearchresults')}}" method="post">
     <label for="search">Search Bar</label>
     <br>
     <input type="text" name="search" placeholder="Search for food" value="{{request.form['search'] }}" required></input>
@@ -36,7 +37,13 @@
 <ul>
     {% for product in products %}
     <li>
-        <a href="/product/{{ product[0] }}">{{ product.name }}</a>
+        <form action="/product/{{product_nums[products.index(product)]}}" method="post" id="choice_form">
+            <!-- Your Form -->
+            <a href="javascript:{}" onclick="document.getElementById('choice_form').submit(); return
+            false;">
+                {{product}}
+            </a>
+        </form>
     </li>
     {% endfor %}
 </ul>

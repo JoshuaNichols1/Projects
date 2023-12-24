@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = "ietf_scraper.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "random_value_19"
+USER_AGENT = "random_value_37"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

@@ -8,28 +8,41 @@
 <p>{{ product_name }}</p>
 <h3><b>Description:</b></h3>
 <p>{{ product_description }}</p>
-<h3><b>Energy:</b></h3>
-<p>{{ product_energy }}</p>
-<h3><b>Protein:</b></h3>
-<p>{{ product_protein }}</p>
-<h3><b>Total Fat:</b></h3>
-<p>{{ product_total_fat }}</p>
-<ul>
-    <li>
-        <h3><b>Saturated Fat:</b></h3>
-        <p>{{ product_saturated_fat }}</p>
-    </li>
-</ul>
-<h3><b>Carbohydrate:</b></h3>
-<p>{{ product_carbohydrate }}</p>
-<ul>
-    <li>
-        <h3><b>Sugar:</b></h3>
-        <p>{{ product_sugar }}</p>
-    </li>
-</ul>
-<h3><b>Sodium:</b></h3>
-<p>{{ product_sodium }}</p>
+<h3><b>Nutritional Information:</b></h3>
+<table>
+    <tr>
+        <th>Nutrient</th>
+        <th>Per serving</th>
+    </tr>
+    <tr>
+        <td>Energy</td>
+        <td>{{ product_energy }}</td>
+    </tr>
+    <tr>
+        <td>Protein</td>
+        <td>{{ product_protein }}</td>
+    </tr>
+    <tr>
+        <td>Total Fat</td>
+        <td>{{ product_total_fat }}</td>
+    </tr>
+    <tr>
+        <td>Saturated Fat</td>
+        <td>{{ product_saturated_fat }}</td>
+    </tr>
+    <tr>
+        <td>Carbohydrates</td>
+        <td>{{ product_carbohydrates }}</td>
+    </tr>
+    <tr>
+        <td>Sugar</td>
+        <td>{{ product_sugar }}</td>
+    </tr>
+    <tr>
+        <td>Sodium</td>
+        <td>{{ product_sodium }}</td>
+    </tr>
+</table>
 <h3><b>Ingredients:</b></h3>
 <p>{{ product_ingredients }}</p>
 {% endblock %}

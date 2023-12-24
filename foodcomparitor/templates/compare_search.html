@@ -1,0 +1,79 @@
+{% extends 'template.html' %}
+{% block header %}
+<h1>{% block title %}Comparison Search{% endblock %}</h1>
+<style>
+    .message {
+        padding: 10px;
+        margin: 5px;
+        background-color: #f3f3f3
+    }
+
+    .alert {
+        padding: 20px;
+        margin: 5px;
+        color: #970020;
+        background-color: #ffd5de;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<a href="{{url_for('productsearch')}}">Search for food here</a>
+<h2>Comparison Search</h2>
+<form action="{{url_for('compsearchresults')}}" method="post">
+    <label for="search">Search Bar</label>
+    <br>
+    <input type="text" name="search" placeholder="Search for the first food" value="{{request.form['search'] }}"
+        required></input>
+    <input type="text" name="search2" placeholder="Search for the second food" value="{{request.form['search2'] }}"
+        required></input>
+    <button type="submit">Submit</button>
+</form>
+{% if get_flashed_messages() %}
+<div class="content">
+    {% for message in get_flashed_messages() %}
+    <div class="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if products %}
+{% if products %}
+<h2>Results</h2>
+<script>
+    var selectedProducts = { product1: null, product2: null };
+
+    function selectProduct(product, id) {
+        selectedProducts[product] = id;
+        if (selectedProducts.product1 && selectedProducts.product2) {
+            document.getElementById('product1_id').value = selectedProducts.product1;
+            document.getElementById('product2_id').value = selectedProducts.product2;
+            document.getElementById('compare_form').submit();
+        }
+    }
+</script>
+<form id="compare_form" action="{{ url_for('product_comparison') }}" method="post">
+    <input type="hidden" id="product1_id" name="product1_id">
+    <input type="hidden" id="product2_id" name="product2_id">
+    <div style="display: flex;">
+        <div style="flex: 1; padding: 10px;">
+            <ul>
+                {% for product in products1 %}
+                <li>
+                    <a href="#" onclick="selectProduct('product1', '{{ product_nums[products.index(product)] }}')">{{
+                        product }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div style="flex: 1; padding: 10px;">
+            <ul>
+                {% for product in products2 %}
+                <li>
+                    <a href="#" onclick="selectProduct('product2', '{{ product_nums[products2.index(product)] }}')">{{
+                        product }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</form>
+{% endif %}
