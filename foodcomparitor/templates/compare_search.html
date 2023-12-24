@@ -36,7 +36,6 @@
 </div>
 {% endif %}
 {% if products %}
-{% if products %}
 <h2>Results</h2>
 <script>
     var selectedProducts = { product1: null, product2: null };
@@ -56,7 +55,7 @@
     <div style="display: flex;">
         <div style="flex: 1; padding: 10px;">
             <ul>
-                {% for product in products1 %}
+                {% for product in products %}
                 <li>
                     <a href="#" onclick="selectProduct('product1', '{{ product_nums[products.index(product)] }}')">{{
                         product }}</a>
@@ -77,3 +76,4 @@
     </div>
 </form>
 {% endif %}
+{% endblock %}

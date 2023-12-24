@@ -82,6 +82,44 @@ def productsearchresults():
 
 @app.route("/product/<product_id>", methods=("GET", "POST"))
 def product_detail(product_id):
+    def unhealthy_amount(record):
+        nutrients = {
+            "energy": 800.0,
+            "protein": 5.0,
+            "total_fat": 20.0,
+            "saturated_fat": 5.0,
+            "carbohydrates": 10.0,
+            "sugar": 10.0,
+            "sodium": 600.0,
+        }
+        warnings = {
+            "energy": "High energy content",
+            "protein": "Low protein content",
+            "total_fat": "High fat content",
+            "saturated_fat": "High saturated fat content",
+            "carbohydrates": "Low carbohydrate content",
+            "sugar": "High sugar content",
+            "sodium": "High sodium content",
+        }
+        warnings_list = []
+        for num, nutrient_amount in enumerate(record[3:-1]):
+            if nutrient_amount == None:
+                continue
+            nutrient_amount = nutrient_amount[0:-2]
+            nutrient_amount = float(nutrient_amount)
+            if num == 1:
+                if nutrient_amount < nutrients["protein"]:
+                    warnings_list.append(warnings["protein"])
+            elif num == 4:
+                if nutrient_amount < nutrients["carbohydrates"]:
+                    warnings_list.append(warnings["carbohydrates"])
+            else:
+                if nutrient_amount > nutrients[list(nutrients.keys())[num]]:
+                    warnings_list.append(warnings[list(warnings.keys())[num]])
+        if "palmoil" in record[10].lower():
+            warnings_list.append("Contains palm oil")
+        return warnings_list
+
     if request.method == "POST":
         product_id = original_results[int(product_id)][0]
         con = sqlite3.connect(
@@ -97,6 +135,8 @@ def product_detail(product_id):
                     return text
                 return result_var
 
+            warning_list = unhealthy_amount(result)
+            warning_list = ",\n".join(warning_list)
             return render_template(
                 "product_details.html",
                 product_name=format_result(result[1], "No product name available"),
@@ -111,6 +151,7 @@ def product_detail(product_id):
                 product_sugar=format_result(result[8], "No sugar details available"),
                 product_sodium=format_result(result[9], "No sodium details available"),
                 product_ingredients=format_result(result[10], "No ingredients available"),
+                warning_list=warning_list,
             )
         else:
             flash("No product found")
@@ -172,7 +213,8 @@ def compsearchresults():
             for num, row in enumerate(result):
                 comp_products.append(row[1])
                 comp_product_nums.append(num + 1)
-                comp_products2.append(result2[num][1])
+            for row in result2:
+                comp_products2.append(row[1])
             return redirect(url_for("comparison_search", show_results="Yes"))
         else:
             flash("No results found")
@@ -184,8 +226,11 @@ def compsearchresults():
 @app.route("/productcomp", methods=("GET", "POST"))
 def product_comparison():
     if request.method == "POST":
+        # try:
         product_id = com_original_results[int(request.form["product1_id"])][0]
+        opened_file.write(f"""{int(request.form["product1_id"])}\n""")
         product_id2 = com_original_results2[int(request.form["product2_id"])][0]
+        opened_file.write(f"""{int(request.form["product2_id"])}\n""")
         con = sqlite3.connect(
             "E:\Coding\Projects\\foodcomparitor\ietf_scraper\spiders\\foodcompare.db"
         )
@@ -200,7 +245,7 @@ def product_comparison():
         if not result2:
             cur.execute("SELECT * FROM product2 WHERE product_url=?", (product_id2,))
             result2 = cur.fetchone()
-        if result1 & result2:
+        if result1 and result2:
 
             def format_result(result_var, text):
                 if (result_var == None) | (result_var == "None") | (result_var == ""):
@@ -223,6 +268,7 @@ def product_comparison():
                 product_sugar=format_result(result1[8], "No sugar details available"),
                 product_sodium=format_result(result1[9], "No sodium details available"),
                 product_ingredients=format_result(result1[10], "No ingredients available"),
+                warning_list=unhealthy_amount(result1),
                 product2_name=format_result(result2[1], "No product name available"),
                 product2_description=format_result(result2[2], "No product description available"),
                 product2_energy=format_result(result2[3], "No energy details available"),
@@ -237,7 +283,11 @@ def product_comparison():
                 product2_sugar=format_result(result2[8], "No sugar details available"),
                 product2_sodium=format_result(result2[9], "No sodium details available"),
                 product2_ingredients=format_result(result2[10], "No ingredients available"),
+                warning_list2=unhealthy_amount(result2),
             )
+        # except:
+        #     flash("No product found or the product details are currently available")
+        #     return redirect(url_for("comparison_search"))
         else:
             flash("No product found")
             return redirect(url_for("productsearch"))

@@ -5,7 +5,6 @@
 {% block content %}
 <div style="display: flex;">
     <div style="flex: 1; padding: 10px;">
-        <h2>Product 1 Details</h2>
         <h3><b>Product Name:</b></h3>
         <p>{{ product_name }}</p>
         <h3><b>Description:</b></h3>
@@ -14,7 +13,7 @@
         <table>
             <tr>
                 <th>Nutrient</th>
-                <th>Per serving</th>
+                <th>Per 100g/mg</th>
             </tr>
             <tr>
                 <td>Energy</td>
@@ -47,9 +46,14 @@
         </table>
         <h3><b>Ingredients:</b></h3>
         <p>{{ product_ingredients }}</p>
+        {% if product_warnings %}
+        <h3><b>Warnings:</b></h3>
+        {%for warning in warning_list%}
+        <li>{{warning}}</li>
+        {%endfor%}
+        {%endif%}
     </div>
     <div style="flex: 1; padding: 10px;">
-        <h2>Product 2 Details</h2>
         <h3><b>Product Name:</b></h3>
         <p>{{ product2_name }}</p>
         <h3><b>Description:</b></h3>
@@ -58,7 +62,7 @@
         <table>
             <tr>
                 <th>Nutrient</th>
-                <th>Per serving</th>
+                <th>Per 100g/mg</th>
             </tr>
             <tr>
                 <td>Energy</td>
