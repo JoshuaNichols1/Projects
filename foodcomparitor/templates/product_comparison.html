@@ -46,12 +46,14 @@
         </table>
         <h3><b>Ingredients:</b></h3>
         <p>{{ product_ingredients }}</p>
-        {% if product_warnings %}
         <h3><b>Warnings:</b></h3>
         {%for warning in warning_list%}
         <li>{{warning}}</li>
         {%endfor%}
-        {%endif%}
+        <h3><b>Positives for {{product_name}} in comparison to {{product2_name}}:</b></h3>
+        {%for positive in product_positive_list%}
+        <li>{{positive}}</li>
+        {%endfor%}
     </div>
     <div style="flex: 1; padding: 10px;">
         <h3><b>Product Name:</b></h3>
@@ -95,6 +97,14 @@
         </table>
         <h3><b>Ingredients:</b></h3>
         <p>{{ product2_ingredients }}</p>
+        <h3><b>Warnings:</b></h3>
+        {%for warning in warning_list2%}
+        <li>{{warning}}</li>
+        {%endfor%}
+        <h3><b>Positives for {{product2_name}} in comparison to {{product_name}}:</b></h3>
+        {%for positive in product2_positive_list%}
+        <li>{{positive}}</li>
+        {%endfor%}
     </div>
 </div>
 {% endblock %}

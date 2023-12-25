@@ -8,6 +8,8 @@
 <p>{{ product_name }}</p>
 <h3><b>Description:</b></h3>
 <p>{{ product_description }}</p>
+<h3><b>Health Score:</b></h3>
+<p>{{ health_score }}/100</p>
 <h3><b>Nutritional Information:</b></h3>
 <table>
     <tr>
@@ -46,5 +48,7 @@
 <h3><b>Ingredients:</b></h3>
 <p>{{ product_ingredients }}</p>
 <h3><b>Warnings:</b></h3>
-<p>{{warning_list}}</p>
+{%for warning in warning_list%}
+<li>{{warning}}</li>
+{%endfor%}
 {% endblock %}

@@ -37,8 +37,9 @@
 <ul>
     {% for product in products %}
     <li>
-        <form action="/product/{{product_nums[products.index(product)]}}" method="post" id="choice_form">
+        <form action="/product" method="post" id="choice_form">
             <!-- Your Form -->
+            <input type="hidden" name="product_id" value="{{product_ids[products.index(product)]}}">
             <a href="javascript:{}" onclick="document.getElementById('choice_form').submit(); return
             false;">
                 {{product}}
