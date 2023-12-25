@@ -105,8 +105,10 @@ def product_detail(product_id):
         for num, nutrient_amount in enumerate(record[3:-1]):
             if nutrient_amount == None:
                 continue
-            nutrient_amount = nutrient_amount[0:-2]
-            nutrient_amount = float(nutrient_amount)
+            try:
+                nutrient_amount = float(nutrient_amount)
+            except:
+                nutrient_amount = float(nutrient_amount[0:-2])
             if num == 1:
                 if nutrient_amount < nutrients["protein"]:
                     warnings_list.append(warnings["protein"])
@@ -116,7 +118,7 @@ def product_detail(product_id):
             else:
                 if nutrient_amount > nutrients[list(nutrients.keys())[num]]:
                     warnings_list.append(warnings[list(warnings.keys())[num]])
-        if "palmoil" in record[10].lower():
+        if "palm oil" in record[10].lower():
             warnings_list.append("Contains palm oil")
         return warnings_list
 

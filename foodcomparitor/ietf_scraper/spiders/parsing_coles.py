@@ -8,7 +8,7 @@ temp_urls = [str(link) for link in link_file]
 
 class IetfSpider(scrapy.Spider):
     name = "parsing_coles"
-    start_urls = temp_urls[0:200]
+    start_urls = temp_urls[200:340]
 
     def __init__(self):
         self.results = []
@@ -60,7 +60,7 @@ class IetfSpider(scrapy.Spider):
             con = sqlite3.connect("foodcompare.db")
             cur = con.cursor()
             cur.execute(
-                "UPDATE product SET product_name=?, description=?, kj=?, protein=?, total_fat=?, saturated_fat=?, carbohydrates=?, sugar=?, sodium=?, ingredients=? WHERE product_url = ?",
+                "UPDATE product2 SET product_name=?, description=?, kj=?, protein=?, total_fat=?, saturated_fat=?, carbohydrates=?, sugar=?, sodium=?, ingredients=? WHERE product_url = ?",
                 (
                     product_name,
                     description,
