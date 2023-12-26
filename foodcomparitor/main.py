@@ -3,6 +3,7 @@ import scrapy
 import sqlite3
 from flask import Flask, flash, render_template, request, redirect, url_for
 import sys
+import re
 
 api = openfoodfacts.API()
 
@@ -23,12 +24,23 @@ global com_original_results
 com_original_results = []
 global com_original_results2
 com_original_results2 = []
+# global show_results
+# show_results = "No"
+
+
+def remove_end(string):
+    if string is None:
+        return None
+    numbers = re.findall(r"\d+\.\d+|\d+", string)
+    if not numbers:
+        return None
+    return float("".join(numbers))
 
 
 def health_score_alg(record):
     def normalize(data):
         rdis = {
-            "energy": 2000,  # Recommended daily intake for energy (kcal)
+            "energy": 2000,  # 2000 Recommended daily intake for energy (kcal)
             "protein": 50,  # Recommended daily intake for protein (g)
             "total_fat": 70,  # Recommended daily intake for total fat (g)
             "saturated_fat": 20,  # Recommended daily intake for saturated fat (g)
@@ -42,12 +54,6 @@ def health_score_alg(record):
             normalized_data[nutrient] = int(value) / rdis[nutrient]
 
         return normalized_data
-
-    def remove_end(string):
-        try:
-            return int(record[3])
-        except:
-            return int(record[3][0:-2])
 
     data = {
         "energy": remove_end(record[3]),
@@ -67,7 +73,11 @@ def health_score_alg(record):
         "sugar": 0.003,
         "sodium": 0.0001,
     }
-
+    print(f"{record[1]}\n{record}", file=sys.stderr)
+    print(f"{record[1]}\n{record[3]},{record[4]}", file=sys.stderr)
+    print(f"{record[1]}\n{data['energy']},{data['protein']}", file=sys.stderr)
+    if None in data.values():
+        return "No health score available 1"
     normalized_data = normalize(data.copy())  # Assuming a normalize function is defined
     score = 0
     for nutrient, value in normalized_data.items():
@@ -100,12 +110,9 @@ def unhealthy_amount(record):
     }
     warnings_list = []
     for num, nutrient_amount in enumerate(record[3:-1]):
-        if nutrient_amount == None:
+        nutrient_amount = remove_end(nutrient_amount)
+        if nutrient_amount is None:
             continue
-        try:
-            nutrient_amount = float(nutrient_amount)
-        except:
-            nutrient_amount = float(nutrient_amount[0:-2])
         if num == 1:
             if nutrient_amount < nutrients["protein"]:
                 warnings_list.append(warnings["protein"])
@@ -129,7 +136,7 @@ def productsearch():
             "index.html",
             products=products,
         )
-    return render_template("index.html", show_results="No")
+    return render_template("index.html")
 
 
 @app.route("/productsearchresults", methods=("GET", "POST"))
@@ -165,16 +172,15 @@ def productsearchresults():
             return redirect(url_for("productsearch", show_results="Yes"))
         else:
             flash("No results found")
-            return redirect(url_for("productsearch"))
+            return redirect(url_for("productsearch", show_results="No"))
     else:
-        return redirect(url_for("productsearch"))
+        return redirect(url_for("productsearch", show_results="No"))
 
 
 @app.route("/product", methods=("GET", "POST"))
 def product_detail():
     if request.method == "POST":
         product_id = request.form["product_id"]
-        print(product_id, file=sys.stderr)
         con = sqlite3.connect(
             "E:\Coding\Projects\\foodcomparitor\ietf_scraper\spiders\\foodcompare.db"
         )
@@ -191,7 +197,7 @@ def product_detail():
             try:
                 health_score = health_score_alg(result)
             except:
-                health_score = "No health score available"
+                health_score = "No health score available 3"
             try:
                 warning_list = unhealthy_amount(result)
             except:
@@ -215,9 +221,9 @@ def product_detail():
             )
         else:
             flash("No product found")
-            return redirect(url_for("productsearch"))
+            return redirect(url_for("productsearch", show_results="No"))
     else:
-        return redirect(url_for("productsearch"))
+        return redirect(url_for("productsearch", show_results="No"))
 
 
 @app.route("/compsearch", methods=("GET", "POST"))
@@ -277,9 +283,9 @@ def compsearchresults():
             return redirect(url_for("comparison_search", show_results="Yes"))
         else:
             flash("No results found")
-            return redirect(url_for("comparison_search"))
+            return redirect(url_for("comparison_search", show_results="No"))
     else:
-        return redirect(url_for("comparison_search"))
+        return redirect(url_for("comparison_search", show_results="No"))
 
 
 @app.route("/productcomp", methods=("GET", "POST"))
@@ -304,24 +310,30 @@ def product_comparison():
                 product2_best.append("Better health score than " + product1_result[1])
             for num, nutrient in enumerate(product1_result[3:-1]):
                 if num == 1:
-                    if nutrient > product2_result[num + 3]:
-                        product1_best.append(
-                            f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product2_result[1]}"
-                        )
-                    elif nutrient < product2_result[num + 3]:
-                        product2_best.append(
-                            f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product1_result[1]}"
-                        )
+                    try:
+                        if nutrient > product2_result[num + 3]:
+                            product1_best.append(
+                                f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product2_result[1]}"
+                            )
+                        elif nutrient < product2_result[num + 3]:
+                            product2_best.append(
+                                f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product1_result[1]}"
+                            )
+                        continue
+                    except:
+                        continue
+                try:
+                    match nutrient:
+                        case _ if nutrient > product2_result[num + 3]:
+                            product2_best.append(
+                                f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product1_result[1]}"
+                            )
+                        case _ if nutrient < product2_result[num + 3]:
+                            product1_best.append(
+                                f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product2_result[1]}"
+                            )
+                except:
                     continue
-                match nutrient:
-                    case _ if nutrient > product2_result[num + 3]:
-                        product2_best.append(
-                            f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product1_result[1]}"
-                        )
-                    case _ if nutrient < product2_result[num + 3]:
-                        product1_best.append(
-                            f"{list(nutrients.values())[num]} {list(nutrients.keys())[num]} per 100g than {product2_result[1]}"
-                        )
             return product1_best, product2_best
 
         product_id = request.form["product1_id"]
@@ -347,12 +359,14 @@ def product_comparison():
                     return text
                 return result_var
 
-            try:
-                health_score = health_score_alg(result)
-                health_score2 = health_score_alg(result2)
-            except:
-                health_score = "No health score available"
-                health_score2 = "No health score available"
+            health_score = health_score_alg(result)
+            health_score2 = health_score_alg(result2)
+            # try:
+            #     health_score = health_score_alg(result)
+            #     health_score2 = health_score_alg(result2)
+            # except:
+            #     health_score = "No health score available"
+            #     health_score2 = "No health score available"
             try:
                 warning_list = unhealthy_amount(result)
                 warning_list2 = unhealthy_amount(result2)
@@ -399,9 +413,9 @@ def product_comparison():
             )
         else:
             flash("No product found")
-            return redirect(url_for("productsearch"))
+            return redirect(url_for("comparison_search", show_results="No"))
     else:
-        return redirect(url_for("comparison_search"))
+        return redirect(url_for("comparison_search", show_results="No"))
 
 
 if __name__ == "__main__":
