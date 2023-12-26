@@ -55,9 +55,9 @@
     <div style="display: flex;">
         <div style="flex: 1; padding: 10px;">
             <ul>
-                {% for product_id, product in products.items() %}
+                {% for product in products %}
                 <li>
-                    <a href="#" onclick="selectProduct('product1', '{{ product_id }}')">{{
+                    <a href="#" onclick="selectProduct('product1', '{{ product_nums[products.index(product)] }}')">{{
                         product }}</a>
                 </li>
                 {% endfor %}
@@ -65,9 +65,9 @@
         </div>
         <div style="flex: 1; padding: 10px;">
             <ul>
-                {% for product_id, product in products2.items() %}
+                {% for product in products2 %}
                 <li>
-                    <a href="#" onclick="selectProduct('product2', '{{ product_id }}')">{{
+                    <a href="#" onclick="selectProduct('product2', '{{ product_nums[products2.index(product)] }}')">{{
                         product }}</a>
                 </li>
                 {% endfor %}

@@ -34,12 +34,18 @@
 {% endif %}
 {% if products %}
 <h2>Results</h2>
-{% for product_id, product in products.items() %}
-<form action="/product" method="post" id="choice_form">
-    <input type="hidden" name="product_id" value="{{product_id}}">
-    <button type="submit" style="background: none !important; border:
-            none; padding: 0 !important; color: #069; text-decoration: underline;cursor: pointer;">{{product}}</button>
-</form>
-{% endfor %}
+<ul>
+    {% for product in products %}
+    <li>
+        <form action="/product/{{product_nums[products.index(product)]}}" method="post" id="choice_form">
+            <!-- Your Form -->
+            <a href="javascript:{}" onclick="document.getElementById('choice_form').submit(); return
+            false;">
+                {{product}}
+            </a>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
 {% endif %}
 {% endblock %}
