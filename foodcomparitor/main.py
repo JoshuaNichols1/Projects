@@ -4,6 +4,7 @@ import sqlite3
 from flask import Flask, flash, render_template, request, redirect, url_for
 import sys
 import re
+import requests
 
 api = openfoodfacts.API()
 
@@ -37,56 +38,115 @@ def remove_end(string):
     return float("".join(numbers))
 
 
-def health_score_alg(record):
-    def normalize(data):
-        rdis = {
-            "energy": 2000,  # 2000 Recommended daily intake for energy (kcal)
-            "protein": 50,  # Recommended daily intake for protein (g)
-            "total_fat": 70,  # Recommended daily intake for total fat (g)
-            "saturated_fat": 20,  # Recommended daily intake for saturated fat (g)
-            "carbohydrates": 275,  # Recommended daily intake for carbohydrates (g)
-            "sugar": 90,  # Recommended daily intake for sugar (g)
-            "sodium": 2400,  # Recommended daily intake for sodium (mg)
-        }
+def health_score_alg(product_name):
+    # Open Food Facts API endpoint for product search
+    api_url = "https://world.openfoodfacts.org/cgi/search.pl"
 
-        normalized_data = {}
-        for nutrient, value in data.items():
-            normalized_data[nutrient] = int(value) / rdis[nutrient]
-
-        return normalized_data
-
-    data = {
-        "energy": remove_end(record[3]),
-        "protein": remove_end(record[4]),
-        "total_fat": remove_end(record[5]),
-        "saturated_fat": remove_end(record[6]),
-        "carbohydrates": remove_end(record[7]),
-        "sugar": remove_end(record[8]),
-        "sodium": remove_end(record[9]),
+    # Parameters for the search query
+    params = {
+        "action": "process",
+        "search_terms2": product_name,
+        "json": "1",
     }
-    weights = {
-        "energy": -0.001,
-        "protein": 0.002,
-        "total_fat": 0.001,
-        "saturated_fat": 0.003,
-        "carbohydrates": 0.001,
-        "sugar": 0.003,
-        "sodium": 0.0001,
-    }
-    print(f"{record[1]}\n{record}", file=sys.stderr)
-    print(f"{record[1]}\n{record[3]},{record[4]}", file=sys.stderr)
-    print(f"{record[1]}\n{data['energy']},{data['protein']}", file=sys.stderr)
-    if None in data.values():
-        return "No health score available 1"
-    normalized_data = normalize(data.copy())  # Assuming a normalize function is defined
-    score = 0
-    for nutrient, value in normalized_data.items():
-        score += weights[nutrient] * value
 
-    # Scale the score to a range of 0 to 100
-    health_score = score * 100
+    # Make the request to the API
+    response = requests.get(api_url, params=params)
 
-    return f"{health_score:.2f}/100"
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response
+        data = response.json()
+
+        # Check if products were found
+        if data["count"] > 0:
+            # Get a list of product names from the search results
+            product_options = []
+            for product in data["products"]:
+                if product["product_name"] not in product_options:
+                    if (
+                        (product["product_name"] == "")
+                        | (product["product_name"] == None)
+                        | (product["product_name"] == " ")
+                    ):
+                        continue
+                    product_options.append(product["product_name"])
+            # Display the list of options to the user
+            print("Found products:")
+            for i, option in enumerate(product_options, start=1):
+                print(f"{i}. {option}")
+            selected_product_name = product_options[0]
+            selected_product = next(
+                product
+                for product in data["products"]
+                if product["product_name"] == selected_product_name
+            )
+            # Check if NutriScore information is available
+            if "nutrition_grades_tags" in selected_product:
+                try:
+                    nutri_score = selected_product["nutriscore_data"]["score"]
+                    return f"{nutri_score:.2f}/100"
+                except:
+                    nutri_score = selected_product["nutriscore_grade"][0]
+                    if nutri_score == "unknown":
+                        return f"NutriScore information not available for {selected_product_name}"
+                    return f"{nutri_score.upper()}"
+            else:
+                return "No health score available"
+        else:
+            return "No health score available"
+    else:
+        return "No health score available"
+
+
+# def normalize(data):
+#     rdis = {
+#         "energy": 2000,  # 2000 Recommended daily intake for energy (kcal)
+#         "protein": 50,  # Recommended daily intake for protein (g)
+#         "total_fat": 70,  # Recommended daily intake for total fat (g)
+#         "saturated_fat": 20,  # Recommended daily intake for saturated fat (g)
+#         "carbohydrates": 275,  # Recommended daily intake for carbohydrates (g)
+#         "sugar": 90,  # Recommended daily intake for sugar (g)
+#         "sodium": 2400,  # Recommended daily intake for sodium (mg)
+#     }
+
+#     normalized_data = {}
+#     for nutrient, value in data.items():
+#         normalized_data[nutrient] = int(value) / rdis[nutrient]
+
+#     return normalized_data
+
+# data = {
+#     "energy": remove_end(record[3]),
+#     "protein": remove_end(record[4]),
+#     "total_fat": remove_end(record[5]),
+#     "saturated_fat": remove_end(record[6]),
+#     "carbohydrates": remove_end(record[7]),
+#     "sugar": remove_end(record[8]),
+#     "sodium": remove_end(record[9]),
+# }
+# weights = {
+#     "energy": -0.001,
+#     "protein": 0.002,
+#     "total_fat": 0.001,
+#     "saturated_fat": 0.003,
+#     "carbohydrates": 0.001,
+#     "sugar": 0.003,
+#     "sodium": 0.0001,
+# }
+# print(f"{record[1]}\n{record}", file=sys.stderr)
+# print(f"{record[1]}\n{record[3]},{record[4]}", file=sys.stderr)
+# print(f"{record[1]}\n{data['energy']},{data['protein']}", file=sys.stderr)
+# if None in data.values():
+#     return "No health score available 1"
+# normalized_data = normalize(data.copy())  # Assuming a normalize function is defined
+# score = 0
+# for nutrient, value in normalized_data.items():
+#     score += weights[nutrient] * value
+
+# # Scale the score to a range of 0 to 100
+# health_score = score * 100
+
+# return f"{health_score:.2f}/100"
 
 
 def unhealthy_amount(record):
@@ -195,7 +255,16 @@ def product_detail():
                 return result_var
 
             try:
-                health_score = health_score_alg(result)
+                health_score = health_score_alg("".join(result[1].split()[:-1]))
+                if health_score == "No health score available":
+                    current_product = result[1].split()[:-1]
+                    while health_score == "No health score available" and current_product != "":
+                        if len(current_product) == 1:
+                            health_score = health_score_alg("".join(current_product))
+                            current_product = ""
+                        else:
+                            current_product = current_product[1:]
+                            health_score = health_score_alg("".join(current_product))
             except:
                 health_score = "No health score available 3"
             try:
@@ -359,8 +428,8 @@ def product_comparison():
                     return text
                 return result_var
 
-            health_score = health_score_alg(result)
-            health_score2 = health_score_alg(result2)
+            health_score = health_score_alg("".join(result[1].split()[0:-1]))
+            health_score2 = health_score_alg("".join(result2[1].split()[0:-1]))
             # try:
             #     health_score = health_score_alg(result)
             #     health_score2 = health_score_alg(result2)
